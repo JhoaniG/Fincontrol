@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="text-gradient mb-0"><i class="fa-solid fa-bug"></i> Control de Gastos Hormiga</h1>
+        <p class="text-light">No dejes que los pequeños gastos consuman tu presupuesto.</p>
+    </div>
+</div>
+
+{% if ant_alert %}
+<div class="glass-card mb-4 border-danger bg-danger bg-opacity-10 text-center py-4">
+    <div class="hormiga-alert">
+        <i class="fa-solid fa-triangle-exclamation"></i> ¡ALERTA ROJA!
+    </div>
+    <p class="text-white mt-2 fs-5">Tus gastos hormiga han superado el límite del 5% (${{ ant_limit|floatformat:0 }}).</p>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="glass-card">
+            <h4>Registrar Gasto</h4>
+            <form method="POST" action="{% url 'hormiga' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label text-light">¿En qué gastaste?</label>
+                    <input type="text" name="description" class="form-control" placeholder="Ej. Café, Uber..." required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-light">Valor</label>
+                    <input type="number" name="amount" class="form-control" placeholder="Ej. 15000" required>
+                </div>
+                <button type="submit" class="btn-primary-custom w-100">
+                    Guardar
+                </button>
+            </form>
+        </div>
+        
+        <div class="glass-card mt-4">
+            <h5 class="text-light">Presupuesto Hormiga (5%)</h5>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="fs-4 text-{{ ant_alert|yesno:'danger,success' }} fw-bold">${{ ant_total|floatformat:0 }}</span>
+                <span class="text-light">de ${{ ant_limit|floatformat:0 }}</span>
+            </div>
+            <div class="progress mt-2" style="height: 10px; background-color: var(--card-bg);">
+                <div class="progress-bar bg-{{ ant_alert|yesno:'danger,success' }}" role="progressbar" 
+                     style="width: {% if ant_limit > 0 %}{{ ant_total|floatformat:0 }}{% else %}0{% endif %}%;" ></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="glass-card h-100">
+            <h4>Historial del Mes</h4>
+            <div class="table-responsive mt-3">
+                <table class="table table-dark table-hover table-borderless align-middle" style="background: transparent;">
+                    <thead>
+                        <tr class="text-light border-bottom border-secondary">
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th class="text-end">Valor</th>
+                            <th class="text-center" style="width: 50px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ant in ant_expenses %}
+                        <tr>
+                            <td>{{ ant.date|date:"d M Y" }}</td>
+                            <td>{{ ant.description }}</td>
+                            <td class="text-end fw-bold text-danger">-${{ ant.amount|floatformat:0 }}</td>
+                            <td class="text-center">
+                                <form method="POST" action="{% url 'delete_transaction' 'ant' ant.id %}" class="d-inline" onsubmit="return confirm('¿Eliminar este gasto hormiga?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-1" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-light py-4">No hay gastos hormiga registrados este mes. ¡Excelente!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="glass-card text-center p-5">
+            <h2 class="text-gradient fw-bold mb-4"><i class="fa-solid fa-lock"></i> Acceder</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-semibold">Usuario (Email)</label>
+                    <input type="text" name="username" class="form-control" placeholder="tu@email.com" required>
+                </div>
+                <div class="mb-4 text-start">
+                    <label class="form-label fw-semibold">Contraseña</label>
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary-custom w-100 mb-3">Ingresar</button>
+                
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    ¿No tienes una cuenta? <br>
+                    <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">Crear Cuenta</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

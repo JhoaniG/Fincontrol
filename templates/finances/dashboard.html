@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="text-gradient mb-0">Resumen Financiero</h1>
+        <p class="text-muted">Hola, {{ user.first_name|default:user.username }}. Este es tu progreso del mes actual.</p>
+    </div>
+    <div class="col-md-4 text-end d-flex flex-wrap gap-2 justify-content-end">
+        <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addIncomeModal">
+            <i class="fa-solid fa-plus"></i> Ingreso
+        </button>
+        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+            <i class="fa-solid fa-minus"></i> Gasto
+        </button>
+        <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addCreditModal">
+            <i class="fa-solid fa-credit-card"></i> Crédito
+        </button>
+        <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#addSavingModal">
+            <i class="fa-solid fa-piggy-bank"></i> Ahorro
+        </button>
+        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#historyModal">
+            <i class="fa-solid fa-clock-rotate-left"></i> Historial
+        </button>
+    </div>
+</div>
+
+<!-- Barra de Filtros: Mes, Año -->
+<div class="glass-card mb-4 py-3">
+    <form method="GET" class="row align-items-center">
+        <div class="col-12 d-flex flex-wrap align-items-center gap-3">
+            <label class="mb-0 fw-bold" style="color: var(--text-main);"><i class="fa-solid fa-calendar-days"></i> Periodo:</label>
+            <select name="month" class="form-select form-select-sm theme-select w-auto" onchange="this.form.submit()">
+                {% for m in months_list %}
+                    <option value="{{ m.num }}" {% if m.num == current_month %}selected{% endif %}>{{ m.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="year" class="form-control form-control-sm w-auto" value="{{ current_year }}" onchange="this.form.submit()" style="max-width: 100px;">
+        </div>
+    </form>
+    <!-- Botón Clonar -->
+    <div class="row px-3 mt-3">
+        <form method="POST" class="col-12 text-end">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="clone_previous_month">
+            <button type="submit" class="btn btn-outline-light btn-sm" title="Clona Ingresos Fijos y Gastos Esenciales del mes anterior" onclick="return confirm('¿Deseas clonar los ingresos fijos y gastos esenciales del mes anterior al mes seleccionado actualmente?')">
+                🚀 Clonar Fijos del Mes Anterior
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Alerta Gasto Hormiga (RF8) -->
+{% if ant_alert %}
+<div class="glass-card mb-4 border-danger bg-danger bg-opacity-10 text-center py-4">
+    <div class="hormiga-alert">
+        <i class="fa-solid fa-triangle-exclamation"></i> ¡ALERTA DE GASTO HORMIGA!
+    </div>
+    <p class="text-white mt-2 fs-5">Tus gastos hormiga ({{ currency_symbol }}{{ ant_total|floatformat:0 }}) han superado el límite del 5% de tus ingresos totales (Límite: {{ currency_symbol }}{{ ant_limit|floatformat:0 }}).</p>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Gráfica 50-30-20 -->
+    <div class="col-lg-8 mb-4">
+        <div class="glass-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0"><i class="fa-solid fa-chart-pie"></i> Regla 50-30-20</h4>
+                <button class="btn btn-outline-info btn-sm" id="toggleChartBtn" onclick="toggleIdealChart()">Ver Gráfica Ideal</button>
+            </div>
+            
+            <div style="position: relative; height:300px; width:100%">
+                <canvas id="ruleChart"></canvas>
+            </div>
+            
+            <div class="row text-center mt-4">
+                <div class="col-4">
+                    <p class="mb-1 fw-bold" style="color: var(--text-main);">Esenciales (50%)</p>
+                    <h5 class="text-success">{{ currency_symbol }}{{ essential_total|floatformat:0 }} / {{ currency_symbol }}{{ limit_50|floatformat:0 }}</h5>
+                    <small style="color: var(--text-muted);">{{ status_50 }}</small>
+                </div>
+                <div class="col-4">
+                    <p class="mb-1 fw-bold" style="color: var(--text-main);">No Esenciales (30%)</p>
+                    <h5 class="text-warning">{{ currency_symbol }}{{ non_essential_total|floatformat:0 }} / {{ currency_symbol }}{{ limit_30|floatformat:0 }}</h5>
+                    <small style="color: var(--text-muted);">{{ status_30 }}</small>
+                </div>
+                <div class="col-4">
+                    <p class="mb-1 fw-bold" style="color: var(--text-main);">Ahorro/Inversión (20%)</p>
+                    <h5 class="text-info">{{ currency_symbol }}{{ saving_total|floatformat:0 }} / {{ currency_symbol }}{{ limit_20|floatformat:0 }}</h5>
+                    <small style="color: var(--text-muted);">{{ status_20 }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="col-lg-4 mb-4">
+        <div class="glass-card mb-4">
+            <h5 class="text-white"><i class="fa-solid fa-arrow-down text-success"></i> Ingresos Totales</h5>
+            <h2 class="fw-bold text-white">{{ currency_symbol }}{{ income_total|floatformat:0 }}</h2>
+        </div>
+        <div class="glass-card mb-4">
+            <h5 class="text-white"><i class="fa-solid fa-arrow-up text-danger"></i> Gastos Registrados</h5>
+            <h2 class="fw-bold text-white">{{ currency_symbol }}{{ expense_total|floatformat:0 }}</h2>
+        </div>
+        <div class="glass-card mb-4">
+            <h5 class="text-white"><i class="fa-solid fa-piggy-bank text-info"></i> Ahorro Efectivo</h5>
+            <h2 class="fw-bold text-white">{{ currency_symbol }}{{ saving_total|floatformat:0 }}</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ingreso -->
+<div class="modal fade" id="addIncomeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Nuevo Ingreso</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_income">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo</label>
+                        <select name="type" class="form-select" required>
+                            <option value="fijo">Fijo</option>
+                            <option value="variable">Variable</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Monto</label>
+                        <input type="number" step="0.01" name="amount" class="form-control" required min="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Periodicidad (Opcional)</label>
+                        <input type="text" name="periodicity" class="form-control" placeholder="Mensual, Quincenal...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <input type="text" name="description" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-success w-100">Guardar Ingreso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Gasto -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Nuevo Gasto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_expense">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Sub-categoría (Se asignará automáticamente al 50-30-20)</label>
+                        <select name="sub_category" class="form-select" required>
+                            <optgroup label="Esenciales (50%)">
+                                <option value="Arriendo / Hipoteca">Arriendo / Hipoteca</option>
+                                <option value="Alimentación">Alimentación</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Servicios (Agua, Luz, Gas)">Servicios (Agua, Luz, Gas)</option>
+                                <option value="Educación">Educación</option>
+                                <option value="Salud">Salud</option>
+                            </optgroup>
+                            <optgroup label="No Esenciales (30%)">
+                                <option value="Restaurantes / Salidas">Restaurantes / Salidas</option>
+                                <option value="Entretenimiento (Cine, Suscripciones)">Entretenimiento (Cine, Suscripciones)</option>
+                                <option value="Ropa y Accesorios">Ropa y Accesorios</option>
+                                <option value="Viajes">Viajes</option>
+                                <option value="Otros Gastos">Otros Gastos</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Monto</label>
+                        <input type="number" step="0.01" name="amount" class="form-control" required min="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <input type="text" name="description" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-danger w-100">Guardar Gasto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crédito -->
+<div class="modal fade" id="addCreditModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Nuevo Crédito</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_credit">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Banco/Entidad</label>
+                        <input type="text" name="bank" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Producto</label>
+                        <input type="text" name="product" class="form-control" placeholder="TDC, Libre inversión..." required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Monto Préstamo</label>
+                            <input type="number" step="0.01" name="loan_amount" class="form-control" required min="0.01">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Tasa Interés (%)</label>
+                            <input type="number" step="0.01" name="interest_rate" class="form-control" required min="0">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Cuota Mensual</label>
+                            <input type="number" step="0.01" name="monthly_fee" class="form-control" required min="0.01">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Meses Totales</label>
+                            <input type="number" name="total_months" class="form-control" required min="1">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Día de Pago (1-31)</label>
+                        <input type="number" name="payment_day" class="form-control" min="1" max="31" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-warning w-100">Guardar Crédito</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ahorro -->
+<div class="modal fade" id="addSavingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Nuevo Ahorro / Inversión</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_saving">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Entidad</label>
+                        <input type="text" name="bank" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Ahorro</label>
+                        <input type="text" name="saving_type" class="form-control" placeholder="Fondo indexado, CDT, Cuenta..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Aporte Mensual</label>
+                        <input type="number" step="0.01" name="monthly_value" class="form-control" required min="0.01">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-info w-100">Guardar Ahorro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Historial -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-0">
+                <h5 class="modal-title"><i class="fa-solid fa-clock-rotate-left"></i> Historial de Movimientos</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {% if history %}
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for item in history %}
+                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center" style="border-color: var(--border-color);">
+                            <div>
+                                {% if item.type %}
+                                    <!-- Ingreso -->
+                                    <strong class="text-success">Ingreso ({{ item.get_type_display|default:"Fijo" }})</strong><br>
+                                    <small class="text-muted">{{ item.description|default:"Sin descripción" }}</small>
+                                {% elif item.category %}
+                                    <!-- Gasto -->
+                                    <strong class="text-danger">Gasto ({{ item.sub_category }})</strong><br>
+                                    <small class="text-muted">Cat: {{ item.get_category_display }}</small>
+                                {% elif item.bank and item.product %}
+                                    <!-- Credito -->
+                                    <strong class="text-warning">Crédito ({{ item.bank }})</strong><br>
+                                    <small class="text-muted">{{ item.product }}</small>
+                                {% elif item.bank and item.saving_type %}
+                                    <!-- Ahorro -->
+                                    <strong class="text-info">Ahorro ({{ item.bank }})</strong><br>
+                                    <small class="text-muted">{{ item.saving_type }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="text-end">
+                                {% if item.type %}
+                                    <h5 class="mb-0 text-success">+${{ item.amount|floatformat:0 }}</h5>
+                                {% elif item.category %}
+                                    <h5 class="mb-0 text-danger">-${{ item.amount|floatformat:0 }}</h5>
+                                {% elif item.loan_amount %}
+                                    <h5 class="mb-0 text-warning">${{ item.loan_amount|floatformat:0 }}</h5>
+                                {% elif item.monthly_value %}
+                                    <h5 class="mb-0 text-info">${{ item.monthly_value|floatformat:0 }}</h5>
+                                {% endif %}
+                                <div class="d-flex align-items-center justify-content-end gap-2 mt-1">
+                                    <small class="text-muted">{{ item.created_at|date:"d M Y, H:i" }}</small>
+                                    <form method="POST" action="{% if item.type %}{% url 'delete_transaction' 'income' item.id %}{% elif item.category %}{% url 'delete_transaction' 'expense' item.id %}{% elif item.loan_amount %}{% url 'delete_transaction' 'credit' item.id %}{% elif item.monthly_value %}{% url 'delete_transaction' 'saving' item.id %}{% endif %}" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar este registro?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-1" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-center text-muted">No hay movimientos recientes.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Onboarding / New Month Modals -->
+{% if is_new_user or is_new_month %}
+<div class="modal fade" id="welcomeModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="border: 1px solid var(--primary);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-gradient">
+                    {% if is_new_user %}¡Bienvenido a Proyecta Fintech!{% else %}¡Comienza un Nuevo Mes!{% endif %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fa-solid fa-rocket fs-1 text-primary mb-3"></i>
+                {% if is_new_user %}
+                    <p>Parece que eres nuevo por aquí. Esta plataforma te ayudará a administrar tus finanzas inteligentemente con la regla 50-30-20 y evitar gastos hormiga.</p>
+                    <p>Para empezar, te recomendamos <strong>Registrar tu primer Ingreso</strong> o simplemente explorar la aplicación.</p>
+                {% else %}
+                    <p>Estás visualizando un mes en el que aún no has registrado movimientos.</p>
+                    <p>¿Qué tal si empezamos copiando tus ingresos fijos y gastos esenciales del mes anterior para ahorrarte tiempo?</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer border-0 d-flex flex-column gap-2">
+                {% if is_new_user %}
+                    <button class="btn btn-primary-custom w-100" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#addIncomeModal">
+                        <i class="fa-solid fa-plus"></i> Ingresar mi primer Ingreso/Gasto
+                    </button>
+                    <button class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">
+                        Navegar por la página
+                    </button>
+                {% else %}
+                    <form method="POST" class="w-100 m-0">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="clone_previous_month">
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            <i class="fa-solid fa-copy"></i> Clonar mes anterior
+                        </button>
+                    </form>
+                    <button class="btn btn-outline-secondary w-100" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#addIncomeModal">
+                        <i class="fa-solid fa-plus"></i> Ingresar manualmente
+                    </button>
+                    <button class="btn btn-link w-100 text-decoration-none" data-bs-dismiss="modal" style="color: var(--text-muted);">
+                        Solo navegar
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        {% if is_new_user or is_new_month %}
+        var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+        welcomeModal.show();
+        {% endif %}
+    });
+
+    const ctx = document.getElementById('ruleChart').getContext('2d');
+    
+    // Datos Actuales
+    const actualData = [
+        {{ essential_total|safe|default:0 }},
+        {{ non_essential_total|safe|default:0 }},
+        {{ saving_total|safe|default:0 }},
+        Math.max(0, {{ income_total|safe|default:0 }} - {{ essential_total|safe|default:0 }} - {{ non_essential_total|safe|default:0 }} - {{ saving_total|safe|default:0 }})
+    ];
+    
+    // Datos Ideales (50% - 30% - 20% - 0%)
+    const idealData = [
+        {{ limit_50|safe|default:0 }},
+        {{ limit_30|safe|default:0 }},
+        {{ limit_20|safe|default:0 }},
+        0
+    ];
+
+    const ruleChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Esenciales', 'No Esenciales', 'Ahorro', 'Disponible'],
+            datasets: [{
+                data: actualData,
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.8)', // Success green
+                    'rgba(245, 158, 11, 0.8)', // Warning yellow
+                    'rgba(56, 189, 248, 0.8)', // Info blue
+                    'rgba(168, 85, 247, 0.8)'  // Purple for Disponible
+                ],
+                borderColor: [
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(56, 189, 248, 1)',
+                    'rgba(168, 85, 247, 1)'
+                ],
+                borderWidth: 1,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#f1f5f9' }
+                }
+            }
+        }
+    });
+
+    let showingIdeal = false;
+    function toggleIdealChart() {
+        showingIdeal = !showingIdeal;
+        const btn = document.getElementById('toggleChartBtn');
+        if (showingIdeal) {
+            ruleChart.data.datasets[0].data = idealData;
+            btn.innerText = "Ver Gráfica Actual";
+            btn.classList.replace('btn-outline-info', 'btn-info');
+            btn.classList.add('text-dark');
+        } else {
+            ruleChart.data.datasets[0].data = actualData;
+            btn.innerText = "Ver Gráfica Ideal";
+            btn.classList.replace('btn-info', 'btn-outline-info');
+            btn.classList.remove('text-dark');
+        }
+        ruleChart.update();
+    }
+</script>
+{% endblock %}

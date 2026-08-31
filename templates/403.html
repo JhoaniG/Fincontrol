@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-75 text-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="glass-card p-5">
+            <h1 class="display-1 fw-bold text-gradient mb-3">403</h1>
+            <h2 class="fw-bold mb-4">Acceso Denegado</h2>
+            <p class="lead mb-5" style="color: var(--text-muted);">
+                No tienes los permisos necesarios para ver esta sección. Si crees que esto es un error, por favor contacta a soporte.
+            </p>
+            <a href="{% url 'landing' %}" class="btn btn-primary-custom btn-lg px-5">
+                <i class="fa-solid fa-house"></i> Volver al Inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

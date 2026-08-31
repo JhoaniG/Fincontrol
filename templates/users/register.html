@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-75 py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold text-gradient">Proyecta Fintech</h1>
+            <p style="color: var(--text-muted);">Crea tu cuenta y empieza a dominar tus finanzas.</p>
+        </div>
+        
+        <div class="glass-card p-4 p-md-5">
+            <form method="POST" action="{% url 'register' %}" id="registerForm">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nombre Completo</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="border-color: var(--border-color); color: var(--text-muted);">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" name="full_name" class="form-control border-start-0" placeholder="Ej. Juan Pérez" required minlength="3">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Correo Electrónico</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="border-color: var(--border-color); color: var(--text-muted);">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" name="email" class="form-control border-start-0" placeholder="tu@correo.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Teléfono Móvil</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="border-color: var(--border-color); color: var(--text-muted);">
+                            <i class="fa-solid fa-phone"></i>
+                        </span>
+                        <input type="tel" name="phone" class="form-control border-start-0" placeholder="+57 300 000 0000" required pattern="[0-9+ ]{7,}">
+                    </div>
+                    <small style="color: var(--text-muted);">Lo usaremos para alertas y seguridad de la cuenta.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Moneda Principal</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="border-color: var(--border-color); color: var(--text-muted);">
+                            <i class="fa-solid fa-coins"></i>
+                        </span>
+                        <select name="currency" class="form-select border-start-0" required>
+                            <option value="COP">Pesos Colombianos (COP)</option>
+                            <option value="USD">Dólares Estadounidenses (USD)</option>
+                            <option value="EUR">Euros (EUR)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="border-color: var(--border-color); color: var(--text-muted);">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" name="password" id="regPassword" class="form-control border-start-0" placeholder="••••••••" required minlength="8">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Confirmar Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0" style="border-color: var(--border-color); color: var(--text-muted);">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" name="password_confirm" id="regPasswordConfirm" class="form-control border-start-0" placeholder="••••••••" required minlength="8">
+                    </div>
+                    <div class="invalid-feedback" id="passwordError">Las contraseñas no coinciden.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 mb-3">
+                    <i class="fa-solid fa-rocket"></i> Crear mi Cuenta
+                </button>
+                
+                <div class="text-center">
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        ¿Ya tienes una cuenta? <br>
+                        <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Iniciar Sesión</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const pwd1 = document.getElementById('regPassword').value;
+    const pwd2 = document.getElementById('regPasswordConfirm').value;
+    const errorDiv = document.getElementById('passwordError');
+    const pwd2Input = document.getElementById('regPasswordConfirm');
+    
+    if (pwd1 !== pwd2) {
+        e.preventDefault();
+        pwd2Input.classList.add('is-invalid');
+        errorDiv.style.display = 'block';
+    } else {
+        pwd2Input.classList.remove('is-invalid');
+        errorDiv.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

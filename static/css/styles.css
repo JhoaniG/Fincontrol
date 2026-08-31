@@ -1,0 +1,145 @@
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary: #10b981;
+    --dark: #0f172a;
+    --light: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --danger: #ef4444;
+    --bg-main: var(--dark);
+    --input-bg: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] {
+    --bg-main: #f0f2f5;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --input-bg: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(0);
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    background-image: radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.15), transparent 25%),
+                      radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.15), transparent 25%);
+    background-attachment: fixed;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom Buttons */
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.5);
+    color: white;
+}
+
+/* Dashboard Typography */
+h1, h2, h3 {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.text-gradient {
+    background: linear-gradient(to right, #818cf8, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Forms */
+.form-control, .form-select {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 0.5rem;
+}
+
+.form-select option, .form-select optgroup {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+.form-select optgroup {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.form-control:focus, .form-select:focus {
+    background: var(--input-bg) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+    color: var(--text-main) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-light, .text-white {
+    color: var(--text-main) !important;
+}
+
+/* Gastos Hormiga Alert */
+.hormiga-alert {
+    font-size: 2.5rem !important;
+    font-weight: 800;
+    color: var(--danger);
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Navbar */
+.navbar-custom {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+}
+.navbar-custom .nav-link, .navbar-custom .navbar-brand {
+    color: var(--text-main) !important;
+}
+.navbar-custom .nav-link:hover {
+    color: var(--primary) !important;
+}
+

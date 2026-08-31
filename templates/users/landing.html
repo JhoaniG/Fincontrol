@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SEO Meta Tags para Google -->
+{% block extra_head %}
+<meta name="description" content="Proyecta Fintech: Tu inteligencia financiera al siguiente nivel. Controla tus gastos, ahorros y metas con la regla 50-30-20.">
+<meta name="keywords" content="fintech, finanzas personales, ahorro, control de gastos, regla 50 30 20, inteligencia financiera">
+{% endblock %}
+
+<div class="row align-items-center min-vh-75 py-5">
+    <!-- Hero Text -->
+    <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
+        <h1 class="display-3 fw-bold mb-4">
+            Bienvenido a <br>
+            <span class="text-gradient">Proyecta Fintech</span>
+        </h1>
+        <p class="lead mb-4" style="color: var(--text-muted);">
+            Lleva tus finanzas al siguiente nivel. Organiza tu dinero de forma sencilla, minimiza la fricción y cumple tus propósitos financieros con inteligencia artificial y automatización.
+        </p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3 mt-5">
+            <a href="{% url 'register' %}" class="btn btn-primary-custom btn-lg px-5 shadow-lg">
+                <i class="fa-solid fa-rocket"></i> Crear mi Cuenta
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-5 shadow-sm" style="color: var(--text-main); border-color: var(--border-color);">
+                Iniciar Sesión
+            </a>
+        </div>
+    </div>
+    
+    <!-- Hero Image / Visual -->
+    <div class="col-lg-6">
+        <div class="glass-card position-relative text-center overflow-hidden" style="min-height: 400px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(16, 185, 129, 0.1)); border: 1px solid var(--border-color);">
+            <div class="position-absolute" style="top: -50px; right: -50px; width: 150px; height: 150px; background: var(--primary); filter: blur(80px); border-radius: 50%;"></div>
+            <div class="position-absolute" style="bottom: -50px; left: -50px; width: 150px; height: 150px; background: var(--secondary); filter: blur(80px); border-radius: 50%;"></div>
+            
+            <div style="z-index: 1;">
+                <h3 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie text-gradient fs-1 mb-3"></i><br>Metodología 50/30/20</h3>
+                <p style="color: var(--text-muted);">Control automático de tus gastos esenciales, no esenciales y ahorros.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row py-5 mt-5">
+    <div class="col-12 text-center mb-5">
+        <h2 class="fw-bold">¿Por qué elegir <span class="text-gradient">Proyecta Fintech</span>?</h2>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="glass-card h-100 text-center p-4">
+            <i class="fa-solid fa-bug fs-1 text-warning mb-3"></i>
+            <h4 class="fw-bold">Detector de Gastos Hormiga</h4>
+            <p style="color: var(--text-muted);">El sistema analiza y te alerta si tus pequeños gastos diarios están devorando más del 5% de tus ingresos.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="glass-card h-100 text-center p-4">
+            <i class="fa-solid fa-wand-magic-sparkles fs-1 text-primary mb-3"></i>
+            <h4 class="fw-bold">Automatización Mensual</h4>
+            <p style="color: var(--text-muted);">Clona tus gastos fijos y suscripciones de meses anteriores con un solo clic. Cero fricción.</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="glass-card h-100 text-center p-4">
+            <i class="fa-solid fa-chart-line fs-1 text-success mb-3"></i>
+            <h4 class="fw-bold">Resumen Anual Inteligente</h4>
+            <p style="color: var(--text-muted);">Visualiza cómo evoluciona tu patrimonio a lo largo del año con gráficas interactivas y hermosas.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

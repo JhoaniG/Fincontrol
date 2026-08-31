@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="text-gradient mb-0"><i class="fa-solid fa-arrow-trend-up"></i> Upgrades Financieros</h1>
+        <p class="text-light">Proyecciones de impuestos y soluciones avanzadas.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="glass-card h-100">
+            <h4><i class="fa-solid fa-file-invoice-dollar text-primary"></i> Proyección Declaración de Renta 2026</h4>
+            <hr class="border-secondary">
+            <p class="text-light">Valor de la UVT 2026 proyectada: <strong>${{ uvt|floatformat:0 }}</strong></p>
+            <p class="text-light">Umbral para declarar (1400 UVT): <strong>${{ limite_declaracion|floatformat:0 }}</strong></p>
+            
+            <div class="mt-4">
+                <h5>Tus Ingresos Acumulados: <span class="text-info">${{ annual_income|floatformat:0 }}</span></h5>
+                {% if debe_declarar %}
+                <div class="alert alert-danger mt-3">
+                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>Atención:</strong> Tus ingresos ya superaron el límite. Estás obligado a declarar renta.
+                </div>
+                {% else %}
+                <div class="alert alert-success mt-3 bg-success bg-opacity-10 border-success text-success">
+                    <i class="fa-solid fa-check-circle"></i> Aún no superas el límite para declarar renta.
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mt-4">
+                <h5>Proyección Anual Estimada: <span class="text-warning">${{ projected_annual|floatformat:0 }}</span></h5>
+                {% if projected_debe_declarar and not debe_declarar %}
+                <div class="alert alert-warning mt-3 bg-warning bg-opacity-10 border-warning text-warning">
+                    <i class="fa-solid fa-bell"></i> <strong>Proyección:</strong> Si mantienes este ritmo de ingresos, superarás el límite a fin de año. Te sugerimos aumentar tus aportes a fondos de pensión voluntaria (ahorro) para obtener beneficios tributarios.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="glass-card h-100">
+            <h4><i class="fa-solid fa-house-chimney text-info"></i> Soluciones Hipotecarias</h4>
+            <hr class="border-secondary">
+            <p class="text-light">Optimiza el pago de tus créditos hipotecarios y seguros asociados.</p>
+            
+            <div class="row mt-4">
+                <div class="col-12 mb-3">
+                    <div class="p-3 border border-secondary rounded bg-dark bg-opacity-50">
+                        <h5><i class="fa-solid fa-shield-halved text-success"></i> Endoso de Seguros</h5>
+                        <p class="text-sm text-light mb-0">Sabías que puedes endosar el seguro de vida de tu crédito hipotecario con una aseguradora externa y ahorrar hasta un 40% en tu cuota mensual. ¡Contáctanos para gestionarlo!</p>
+                        <button class="btn btn-outline-success btn-sm mt-2">Saber más</button>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-3 border border-secondary rounded bg-dark bg-opacity-50">
+                        <h5><i class="fa-solid fa-coins text-warning"></i> Abonos a Capital Inteligentes</h5>
+                        <p class="text-sm text-light mb-0">Nuestra herramienta te permite calcular cuánto tiempo y dinero te ahorras si realizas abonos a capital (reducción de plazo vs. reducción de cuota).</p>
+                        <button class="btn btn-outline-warning btn-sm mt-2">Proyectar Hipoteca</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

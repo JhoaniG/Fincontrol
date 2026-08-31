@@ -1,0 +1,1 @@
+import os, django; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fincontrol_project.settings'); django.setup(); from users.models import CustomUser; CustomUser.objects.create_superuser('admin', 'admin@example.com', 'Teojhoanig12*') if not CustomUser.objects.filter(username='admin').exists() else None
