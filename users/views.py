@@ -117,3 +117,30 @@ def profile_view(request):
         return redirect('profile')
         
     return render(request, 'users/profile.html', {'user': user})
+
+@login_required
+def pricing_view(request):
+    return render(request, 'users/pricing.html')
+
+@login_required
+def checkout_view(request, plan):
+    # plan puede ser 'monthly' o 'annual'
+    amount_in_cents = 4000 if plan == 'monthly' else 40000
+    if plan not in ['monthly', 'annual']:
+        return redirect('pricing')
+        
+    context = {
+        'plan': plan,
+        'amount_in_cents': amount_in_cents, # Wompi usa centavos
+        'reference': f'sub_{request.user.id}_{plan}'
+    }
+    return render(request, 'users/checkout.html', context)
+
+@login_required
+def cancel_subscription_view(request):
+    user = request.user
+    if hasattr(user, 'subscription'):
+        user.subscription.status = 'canceled'
+        user.subscription.save()
+        messages.success(request, 'Suscripción cancelada correctamente. Sentimos verte partir.')
+    return redirect('profile')

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-5 text-center">
+            <div class="mb-4">
+                <i class="fa-solid fa-credit-card fs-1 text-gradient mb-3" style="font-size: 4rem !important;"></i>
+                <h2 class="fw-bold mb-2" style="color: var(--text-main);">Finalizar Pago</h2>
+                <p style="color: var(--text-muted);">Estás a un paso de activar tu plan <strong>{% if plan == 'monthly' %}Mensual{% else %}Anual{% endif %}</strong>.</p>
+                <div class="display-4 fw-bold text-gradient my-3">
+                    ${% if plan == 'monthly' %}40{% else %}400{% endif %} <span class="fs-4 text-muted">USD</span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <!-- Wompi Drop-in Widget -->
+                <form>
+                    <script
+                        src="https://checkout.wompi.co/widget.js"
+                        data-environment="test"
+                        data-public-key="pub_test_X0zDA9ooKDEQTGXOTZUKB5X2" 
+                        data-amount-in-cents="{{ amount_in_cents }}"
+                        data-reference="{{ reference }}"
+                        data-currency="USD"
+                        data-redirect-url="http://localhost:8000/profile/">
+                    </script>
+                </form>
+                <small class="d-block mt-3" style="color: var(--text-muted);">Pago seguro procesado por Wompi.</small>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{% url 'pricing' %}" class="text-decoration-none" style="color: var(--text-muted);"><i class="fa-solid fa-arrow-left me-1"></i> Volver a planes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

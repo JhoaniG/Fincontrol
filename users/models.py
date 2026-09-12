@@ -26,3 +26,22 @@ class OTPVerification(models.Model):
 
     def __str__(self):
         return f"OTP for {self.user.username}"
+
+class Subscription(models.Model):
+    PLAN_CHOICES = (
+        ('monthly', 'Mensual ($40 USD)'),
+        ('annual', 'Anual ($400 USD)'),
+    )
+    STATUS_CHOICES = (
+        ('active', 'Activa'),
+        ('canceled', 'Cancelada'),
+    )
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='subscription')
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='monthly')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    next_billing_date = models.DateField(null=True, blank=True)
+    wompi_transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan} ({self.status})"

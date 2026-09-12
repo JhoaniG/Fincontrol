@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-12 text-center mb-5">
+        <h1 class="text-gradient fw-bold" style="font-size: 3rem;">Únete a Proyecta Fintech Premium</h1>
+        <p class="text-muted fs-5">Toma el control absoluto de tus finanzas. Elige el plan que mejor se adapte a ti.</p>
+    </div>
+
+    <!-- Plan Mensual -->
+    <div class="col-md-5 col-lg-4 mb-4">
+        <div class="glass-card h-100 p-4 text-center d-flex flex-column" style="border: 1px solid var(--border-color);">
+            <h3 class="fw-bold" style="color: var(--text-main);">Plan Mensual</h3>
+            <p class="text-muted">Flexibilidad total</p>
+            <div class="my-4">
+                <span class="fs-1 fw-bold text-gradient">$40</span>
+                <span class="text-muted">USD / mes</span>
+            </div>
+            <ul class="list-unstyled text-start mb-4" style="color: var(--text-main);">
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Acceso total al Dashboard</li>
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Gestión 50-30-20</li>
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Límite Gastos Hormiga</li>
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Soporte Básico</li>
+            </ul>
+            <div class="mt-auto">
+                <a href="{% url 'checkout' 'monthly' %}" class="btn btn-outline-primary w-100 py-2 fw-bold">Elegir
+                    Mensual</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Anual -->
+    <div class="col-md-5 col-lg-4 mb-4">
+        <div class="glass-card h-100 p-4 text-center d-flex flex-column position-relative"
+            style="border: 2px solid var(--primary); transform: scale(1.05); z-index: 10;">
+            <div class="position-absolute top-0 start-50 translate-middle badge bg-primary px-3 py-2 rounded-pill fs-6">
+                Más Popular (Ahorras $80)
+            </div>
+            <h3 class="fw-bold mt-3" style="color: var(--text-main);">Plan Anual</h3>
+            <p class="text-muted">Compromiso con tus finanzas</p>
+            <div class="my-4">
+                <span class="fs-1 fw-bold text-gradient">$400</span>
+                <span class="text-muted">USD / año</span>
+            </div>
+            <ul class="list-unstyled text-start mb-4" style="color: var(--text-main);">
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Todo el Plan Mensual</li>
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Ahorro de 2 meses enteros</li>
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Análisis Anual de Impuestos</li>
+                <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Soporte Prioritario</li>
+            </ul>
+            <div class="mt-auto">
+                <a href="{% url 'checkout' 'annual' %}" class="btn btn-primary-custom w-100 py-2 fw-bold">Elegir
+                    Anual</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

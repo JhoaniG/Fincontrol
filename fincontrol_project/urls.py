@@ -21,9 +21,17 @@ from django.shortcuts import render
 def test_404(request):
     return render(request, '404.html')
 
+def test_403(request):
+    return render(request, '403.html')
+
+def test_500(request):
+    return render(request, '500.html')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('test-404/', test_404),
+    path('test-403/', test_403),
+    path('test-500/', test_500),
     path('', include('finances.urls')),
     path('', include('users.urls')),
 ]

@@ -10,4 +10,7 @@ urlpatterns = [
     path('otp-verify/<int:user_id>/', views.otp_verify_view, name='otp_verify'),
     path('api/hotmart-webhook/', views.hotmart_webhook, name='hotmart_webhook'),
     path('profile/', views.profile_view, name='profile'),
+    path('pricing/', views.pricing_view, name='pricing'),
+    path('checkout/<str:plan>/', views.checkout_view, name='checkout'),
+    path('cancel-subscription/', views.cancel_subscription_view, name='cancel_subscription'),
 ]
